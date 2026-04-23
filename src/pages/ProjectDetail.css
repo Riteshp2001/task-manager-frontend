@@ -1,188 +1,208 @@
 .project-detail-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  padding: 32px;
 }
 
-.header {
-  background: white;
-  padding: 16px 32px;
+.project-detail-container .header {
+  max-width: 1160px;
+  margin: 0 auto 28px;
+  padding: 28px 32px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
 }
 
-.header h1 {
-  margin: 0;
-  color: #333;
-  font-size: 24px;
-}
-
-.back-link {
-  color: #667eea;
+.project-detail-container .back-link {
+  display: inline-block;
+  color: var(--accent);
   text-decoration: none;
+  margin-bottom: 10px;
   font-size: 14px;
-}
-
-.btn-new-task {
-  background: #667eea;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
   font-weight: 500;
-  transition: background 0.2s ease;
 }
 
-.btn-new-task:hover {
-  background: #5568d3;
+.project-detail-container .back-link:hover {
+  text-decoration: underline;
 }
 
-.tasks-container {
-  padding: 32px;
-  max-width: 1200px;
+.project-detail-container .header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.project-detail-container .project-summary {
+  margin: 0;
+  max-width: 620px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.project-detail-container .btn-new-task {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 500;
+  border: 1px solid var(--accent);
+}
+
+.project-detail-container .tasks-container {
+  max-width: 1160px;
   margin: 0 auto;
 }
 
-.tasks-table {
+.project-detail-container .tasks-table {
   width: 100%;
-  background: white;
-  border-radius: 12px;
+  background: var(--panel);
+  border-radius: 18px;
+  border: 1px solid var(--line);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
+  border-collapse: collapse;
 }
 
-.tasks-table th,
-.tasks-table td {
-  padding: 16px 20px;
+.project-detail-container .tasks-table th {
+  background: var(--panel-soft);
+  padding: 16px;
   text-align: left;
-}
-
-.tasks-table th {
-  background: #f8f9fa;
-  color: #666;
-  font-weight: 600;
+  color: var(--muted);
   font-size: 13px;
-  text-transform: uppercase;
-}
-
-.tasks-table td {
-  border-bottom: 1px solid #eee;
-}
-
-.task-title {
   font-weight: 600;
-  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.project-detail-container .tasks-table td {
+  padding: 20px 16px;
+  border-top: 1px solid rgba(108, 99, 88, 0.12);
+  vertical-align: middle;
+}
+
+.project-detail-container .task-title {
+  font-weight: 600;
+  color: var(--text);
   margin-bottom: 4px;
 }
 
-.task-description {
-  font-size: 13px;
-  color: #888;
+.project-detail-container .task-description {
+  color: var(--muted);
+  font-size: 14px;
 }
 
-.priority-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
+.project-detail-container .priority-badge,
+.project-detail-container .status-badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.priority-high {
-  background: #fee;
-  color: #c00;
-}
-
-.priority-medium {
-  background: #fef3cd;
-  color: #856404;
-}
-
-.priority-low {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-todo {
-  background: #e1e1e1;
-  color: #555;
-}
-
-.status-progress {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.status-done {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-overdue {
-  background: #fee;
-  color: #c00;
   font-weight: 600;
 }
 
-.overdue-date {
-  color: #c00;
-  font-weight: 500;
+.project-detail-container .priority-high {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
+.project-detail-container .priority-medium {
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 
-.btn-action {
-  padding: 6px 12px;
+.project-detail-container .priority-low {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.project-detail-container .status-todo {
+  background: #e7eef7;
+  color: #395b85;
+}
+
+.project-detail-container .status-progress {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.project-detail-container .status-done {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.project-detail-container .status-overdue {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.project-detail-container .overdue-date {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.project-detail-container .btn-action {
+  padding: 10px 14px;
   border: none;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
-.btn-progress {
-  background: #e3f2fd;
-  color: #1976d2;
+.project-detail-container .btn-action:hover {
+  opacity: 0.9;
 }
 
-.btn-progress:hover {
-  background: #bbdefb;
-}
-
-.btn-done {
-  background: #d4edda;
-  color: #155724;
-}
-
-.btn-done:hover {
-  background: #c3e6cb;
-}
-
-.btn-close {
-  background: #667eea;
+.project-detail-container .btn-progress {
+  background: #395b85;
   color: white;
 }
 
-.btn-close:hover {
-  background: #5568d3;
+.project-detail-container .btn-done {
+  background: var(--accent);
+  color: white;
+}
+
+.project-detail-container .btn-close {
+  background: var(--danger);
+  color: white;
+}
+
+.project-detail-container .empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--panel);
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.project-detail-container .empty-state h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+
+.project-detail-container .empty-state p {
+  color: var(--muted);
+  font-size: 16px;
+  margin: 0 0 24px;
+}
+
+.project-detail-container .btn-create-task {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
 }
 
 .loading-container {
@@ -191,59 +211,71 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f5f7fa;
 }
 
 .loading-container p {
-  color: #666;
+  color: var(--muted);
   margin-top: 16px;
 }
 
 .spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid #e1e1e1;
-  border-top-color: #667eea;
+  border: 4px solid rgba(36, 92, 76, 0.16);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 12px;
-}
-
-.empty-state p {
-  color: #666;
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-.btn-create-task {
-  background: #667eea;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.error-message {
-  max-width: 1200px;
-  margin: 24px auto;
+.project-detail-container .error-message {
+  max-width: 1160px;
+  margin: 0 auto 24px;
   padding: 16px 20px;
-  background: #fee;
-  color: #c00;
-  border-radius: 8px;
-  border-left: 4px solid #c00;
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-radius: 14px;
+  border: 1px solid rgba(139, 47, 40, 0.14);
 }
 
-.hidden-task {
-  opacity: 0.5;
+.project-detail-container .locked-note {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.project-detail-container .done-note {
+  color: var(--accent);
+}
+
+@media (max-width: 860px) {
+  .project-detail-container {
+    padding: 18px;
+  }
+
+  .project-detail-container .header {
+    padding: 22px;
+    flex-direction: column;
+  }
+
+  .project-detail-container .tasks-table,
+  .project-detail-container .tasks-table thead,
+  .project-detail-container .tasks-table tbody,
+  .project-detail-container .tasks-table th,
+  .project-detail-container .tasks-table td,
+  .project-detail-container .tasks-table tr {
+    display: block;
+  }
+
+  .project-detail-container .tasks-table thead {
+    display: none;
+  }
+
+  .project-detail-container .tasks-table tr {
+    padding: 18px;
+  }
+
+  .project-detail-container .tasks-table td {
+    padding: 10px 0;
+    border-top: none;
+  }
 }

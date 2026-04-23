@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { taskService } from '../services/api';
+import { getSession, taskService, userService } from '../services/api';
 import './CreateTask.css';
 
 function CreateTask() {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const session = getSession();
+  const user = session?.user;
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -13,30 +15,54 @@ function CreateTask() {
     due_date: '',
     assigned_to: '',
   });
+  const [assignableUsers, setAssignableUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    if (user?.role !== 'admin') {
+      navigate(`/projects/${projectId}`);
+      return;
+    }
+
+    loadUsers();
+  }, [projectId, navigate, user?.role]);
+
+  const loadUsers = async () => {
+    try {
+      const response = await userService.getAssignableUsers();
+      setAssignableUsers(response);
+    } catch (err) {
+      setError(err.message || 'Failed to load users.');
+    } finally {
+      setLoadingUsers(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((previous) => ({ ...previous, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setLoading(true);
 
     try {
       const taskData = {
-        ...formData,
-        project_id: parseInt(projectId),
-        assigned_to: formData.assigned_to ? parseInt(formData.assigned_to) : null,
+        title: formData.title,
+        description: formData.description,
+        priority: formData.priority,
+        due_date: new Date(formData.due_date).toISOString(),
+        assigned_to: formData.assigned_to ? parseInt(formData.assigned_to, 10) : null,
       };
-      
-      await taskService.create(taskData);
+
+      await taskService.create(projectId, taskData);
       navigate(`/projects/${projectId}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create task');
+      setError(err.message || 'Failed to create task.');
     } finally {
       setLoading(false);
     }
@@ -46,14 +72,17 @@ function CreateTask() {
     <div className="create-task-container">
       <header className="header">
         <div className="header-left">
-          <Link to={`/projects/${projectId}`} className="back-link">← Back</Link>
+          <Link to={`/projects/${projectId}`} className="back-link">
+            ← Back
+          </Link>
           <h1>Create Task</h1>
+          <p className="page-copy">Fill in the basic details and assign the task to a member.</p>
         </div>
       </header>
 
       <div className="form-container">
         {error && <div className="error-message">{error}</div>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Task Title *</label>
@@ -81,11 +110,7 @@ function CreateTask() {
           <div className="form-row">
             <div className="form-group">
               <label>Priority</label>
-              <select
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-              >
+              <select name="priority" value={formData.priority} onChange={handleChange}>
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
                 <option value="HIGH">High</option>
@@ -105,14 +130,20 @@ function CreateTask() {
           </div>
 
           <div className="form-group">
-            <label>Assign To (User ID)</label>
-            <input
-              type="number"
+            <label>Assign To</label>
+            <select
               name="assigned_to"
               value={formData.assigned_to}
               onChange={handleChange}
-              placeholder="Enter user ID"
-            />
+              disabled={loadingUsers}
+            >
+              <option value="">Select a member</option>
+              {assignableUsers.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} ({item.email})
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-actions">

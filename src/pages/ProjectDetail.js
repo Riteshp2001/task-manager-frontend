@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { taskService, overdueService } from '../services/api';
+import { getSession, projectService, taskService } from '../services/api';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
@@ -9,8 +9,8 @@ function ProjectDetail() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const userRole = localStorage.getItem('userRole');
-  const userId = parseInt(localStorage.getItem('userId'));
+  const session = getSession();
+  const user = session?.user;
 
   useEffect(() => {
     loadData();
@@ -18,66 +18,95 @@ function ProjectDetail() {
 
   const loadData = async () => {
     try {
-      const projectData = fetchProject();
-      const tasksData = await taskService.getByProject(projectId);
+      const [projectData, tasksData] = await Promise.all([
+        projectService.getById(projectId),
+        taskService.getByProject(projectId),
+      ]);
+
       setProject(projectData);
-      setTasks(tasksData?.data || tasksData || []);
+      setTasks(tasksData);
     } catch (err) {
-      setError('Failed to load project data');
+      setError(err.message || 'Failed to load project data.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchProject = () => {
-    return { id: projectId, name: 'Project ' + projectId };
-  };
-
   const handleStatusChange = async (taskId, newStatus) => {
-    try {
-      const isAdmin = userRole === 'admin';
-      const checkResult = await overdueService.canChangeStatus(taskId, newStatus, isAdmin);
-      
-      if (!checkResult.can_change) {
-        setError(checkResult.reason);
-        setTimeout(() => setError(''), 3000);
-        return;
-      }
+    setError('');
 
-      await taskService.updateStatus(taskId, newStatus, isAdmin);
+    try {
+      await taskService.updateStatus(taskId, newStatus);
       await loadData();
     } catch (err) {
-      setError(err.message || 'Failed to update status');
+      setError(err.message || 'Failed to update status.');
     }
   };
 
   const getPriorityClass = (priority) => {
     switch (priority?.toUpperCase()) {
-      case 'HIGH': return 'priority-high';
-      case 'MEDIUM': return 'priority-medium';
-      case 'LOW': return 'priority-low';
-      default: return '';
+      case 'HIGH':
+        return 'priority-high';
+      case 'MEDIUM':
+        return 'priority-medium';
+      case 'LOW':
+        return 'priority-low';
+      default:
+        return '';
     }
   };
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'TODO': return 'status-todo';
-      case 'IN_PROGRESS': return 'status-progress';
-      case 'DONE': return 'status-done';
-      case 'OVERDUE': return 'status-overdue';
-      default: return '';
+      case 'TODO':
+        return 'status-todo';
+      case 'IN_PROGRESS':
+        return 'status-progress';
+      case 'DONE':
+        return 'status-done';
+      case 'OVERDUE':
+        return 'status-overdue';
+      default:
+        return '';
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatDate = (value) => {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   };
 
-  const isMyTask = (task) => {
-    return task.assigned_to === userId;
+  const getActionLabel = (task) => {
+    if (task.status === 'TODO') {
+      return 'Start';
+    }
+
+    if (task.status === 'IN_PROGRESS') {
+      return 'Mark done';
+    }
+
+    if (task.status === 'OVERDUE') {
+      return 'Close overdue';
+    }
+
+    return '';
+  };
+
+  const getNextStatus = (task) => {
+    if (task.status === 'TODO') {
+      return 'IN_PROGRESS';
+    }
+
+    return 'DONE';
   };
 
   if (loading) {
@@ -93,13 +122,18 @@ function ProjectDetail() {
     <div className="project-detail-container">
       <header className="header">
         <div className="header-left">
-          <Link to="/projects" className="back-link">← Back</Link>
-          <h1>{project?.name || 'Project Details'}</h1>
+          <Link to="/projects" className="back-link">
+            ← Back
+          </Link>
+          <h1>{project?.name || 'Project details'}</h1>
+          <p className="project-summary">
+            {project?.description || 'No description added for this project.'}
+          </p>
         </div>
         <div className="header-right">
-          {userRole === 'admin' && (
+          {user?.role === 'admin' && (
             <Link to={`/create-task/${projectId}`} className="btn-new-task">
-              + New Task
+              Create task
             </Link>
           )}
         </div>
@@ -110,8 +144,13 @@ function ProjectDetail() {
       <div className="tasks-container">
         {tasks.length === 0 ? (
           <div className="empty-state">
-            <p>No tasks found</p>
-            {userRole === 'admin' && (
+            <h3>No tasks found</h3>
+            <p>
+              {user?.role === 'admin'
+                ? 'Create the first task for this project.'
+                : 'No tasks are currently assigned to you in this project.'}
+            </p>
+            {user?.role === 'admin' && (
               <Link to={`/create-task/${projectId}`} className="btn-create-task">
                 Create first task
               </Link>
@@ -130,7 +169,7 @@ function ProjectDetail() {
             </thead>
             <tbody>
               {tasks.map((task) => (
-                <tr key={task.id} className={!isMyTask(task) && userRole !== 'admin' ? 'hidden-task' : ''}>
+                <tr key={task.id}>
                   <td>
                     <div className="task-title">{task.title}</div>
                     <div className="task-description">{task.description}</div>
@@ -151,33 +190,25 @@ function ProjectDetail() {
                     </span>
                   </td>
                   <td>
-                    {(isMyTask(task) || userRole === 'admin') && (
-                      <div className="action-buttons">
-                        {task.status !== 'DONE' && task.status !== 'OVERDUE' && (
-                          <button
-                            onClick={() => handleStatusChange(task.id, 'IN_PROGRESS')}
-                            className="btn-action btn-progress"
-                          >
-                            Start
-                          </button>
-                        )}
-                        {task.status === 'IN_PROGRESS' && (
-                          <button
-                            onClick={() => handleStatusChange(task.id, 'DONE')}
-                            className="btn-action btn-done"
-                          >
-                            Done
-                          </button>
-                        )}
-                        {task.status === 'OVERDUE' && userRole === 'admin' && (
-                          <button
-                            onClick={() => handleStatusChange(task.id, 'DONE')}
-                            className="btn-action btn-close"
-                          >
-                            Close
-                          </button>
-                        )}
-                      </div>
+                    {task.status !== 'DONE' ? (
+                      task.status === 'OVERDUE' && user?.role !== 'admin' ? (
+                        <span className="locked-note">Admin only</span>
+                      ) : (
+                        <button
+                          onClick={() => handleStatusChange(task.id, getNextStatus(task))}
+                          className={`btn-action ${
+                            task.status === 'OVERDUE'
+                              ? 'btn-close'
+                              : task.status === 'IN_PROGRESS'
+                                ? 'btn-done'
+                                : 'btn-progress'
+                          }`}
+                        >
+                          {getActionLabel(task)}
+                        </button>
+                      )
+                    ) : (
+                      <span className="locked-note done-note">Completed</span>
                     )}
                   </td>
                 </tr>

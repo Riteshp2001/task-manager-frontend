@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { projectService } from '../services/api';
+import { authService, clearSession, getSession, projectService } from '../services/api';
 import './Projects.css';
 
 function Projects() {
@@ -8,7 +8,8 @@ function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const userRole = localStorage.getItem('userRole');
+  const session = getSession();
+  const user = session?.user;
 
   useEffect(() => {
     loadProjects();
@@ -17,19 +18,23 @@ function Projects() {
   const loadProjects = async () => {
     try {
       const response = await projectService.getAll();
-      setProjects(response.data || response);
+      setProjects(response);
     } catch (err) {
-      setError('Failed to load projects');
+      setError(err.message || 'Failed to load projects.');
       setProjects([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      // Ignore logout failures and clear the local session anyway.
+    }
+
+    clearSession();
     navigate('/login');
   };
 
@@ -37,7 +42,7 @@ function Projects() {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Loading...</p>
+        <p>Loading projects...</p>
       </div>
     );
   }
@@ -46,10 +51,19 @@ function Projects() {
     <div className="projects-container">
       <header className="header">
         <div className="header-left">
+          <p className="section-label">Dashboard</p>
           <h1>Projects</h1>
+          <p className="section-copy">
+            {user?.role === 'admin'
+              ? 'Review every project, assign tasks, and monitor overdue work.'
+              : 'Open any project below to see the tasks assigned to you.'}
+          </p>
         </div>
         <div className="header-right">
-          <span className="user-role">{userRole === 'admin' ? 'Admin' : 'Member'}</span>
+          <div className="user-chip">
+            <strong>{user?.name}</strong>
+            <span>{user?.role === 'admin' ? 'Admin' : 'Member'}</span>
+          </div>
           <button onClick={handleLogout} className="btn-logout">
             Logout
           </button>
@@ -61,18 +75,25 @@ function Projects() {
       <div className="projects-grid">
         {projects.length === 0 ? (
           <div className="empty-state">
-            <p>No projects found</p>
-            {userRole === 'admin' && (
-              <p>Create a new project </p>
-            )}
+            <h3>No projects yet</h3>
+            <p>
+              {user?.role === 'admin'
+                ? 'Create a project from the backend API or seed data to start assigning tasks.'
+                : 'No tasks have been assigned to you yet, so no projects are visible.'}
+            </p>
           </div>
         ) : (
           projects.map((project) => (
             <Link to={`/projects/${project.id}`} key={project.id} className="project-card">
+              <div className="project-card-top">
+                <span className="project-count">
+                  {project.task_count || 0} task{project.task_count === 1 ? '' : 's'}
+                </span>
+              </div>
               <h3>{project.name}</h3>
-              <p>{project.description || 'No description'}</p>
+              <p>{project.description || 'No description added yet.'}</p>
               <div className="project-meta">
-                <span>{project.task_count || 0} tasks</span>
+                <span>Open project</span>
               </div>
             </Link>
           ))
