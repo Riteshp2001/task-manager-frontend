@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { taskService, overdueService } from '../services/api';
 import './ProjectDetail.css';
 
 function ProjectDetail() {
   const { projectId } = useParams();
-  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,16 +14,15 @@ function ProjectDetail() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const loadData = async () => {
     try {
-      const [projectData, tasksData] = await Promise.all([
-        fetchProject(),
-        taskService.getByProject(projectId)
-      ]);
+      const projectData = fetchProject();
+      const tasksData = await taskService.getByProject(projectId);
       setProject(projectData);
-      setTasks(tasksData.data || tasksData);
+      setTasks(tasksData?.data || tasksData || []);
     } catch (err) {
       setError('Failed to load project data');
     } finally {
@@ -32,7 +30,7 @@ function ProjectDetail() {
     }
   };
 
-  const fetchProject = async () => {
+  const fetchProject = () => {
     return { id: projectId, name: 'Project ' + projectId };
   };
 
@@ -50,7 +48,7 @@ function ProjectDetail() {
       await taskService.updateStatus(taskId, newStatus, isAdmin);
       await loadData();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to update status');
+      setError(err.message || 'Failed to update status');
     }
   };
 
