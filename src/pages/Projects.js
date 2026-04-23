@@ -37,7 +37,7 @@ function Projects() {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Loading projects...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ function Projects() {
           <div className="empty-state">
             <p>No projects found</p>
             {userRole === 'admin' && (
-              <p>Create a new project to get started</p>
+              <p>Create a new project </p>
             )}
           </div>
         ) : (
