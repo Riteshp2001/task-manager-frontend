@@ -1,14 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg: #f3f1eb;
-  --panel: #ffffff;
-  --panel-soft: #faf8f3;
-  --line: #d8d2c6;
-  --text: #1f1c17;
-  --muted: #6c6358;
+  --bg: #f4f1ea;
+  --panel: rgba(255, 255, 255, 0.92);
+  --panel-soft: #faf7f0;
+  --line: rgba(56, 47, 37, 0.12);
+  --text: #1f1a13;
+  --muted: #6e6457;
+  --muted-strong: #4d4338;
   --accent: #245c4c;
-  --accent-soft: #e2efe9;
+  --accent-soft: #e3efe8;
   --danger: #8b2f28;
   --danger-soft: #f8e4de;
   --warning: #8b651a;
@@ -23,7 +24,9 @@
 body {
   margin: 0;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.78), transparent 32%),
+    linear-gradient(180deg, #f7f4ee 0%, var(--bg) 48%, #efe9dd 100%);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -38,6 +41,12 @@ input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(36, 92, 76, 0.28);
+  outline-offset: 2px;
 }
 
 #root {

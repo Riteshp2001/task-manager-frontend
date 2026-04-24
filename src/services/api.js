@@ -1,11 +1,10 @@
 import axios from 'axios';
 
-const isLocalHost =
-  typeof window !== 'undefined' &&
-  ['localhost', '127.0.0.1'].includes(window.location.hostname);
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL || (isLocalHost ? 'http://127.0.0.1:8000' : '');
+const configuredApiBaseUrl = (process.env.REACT_APP_API_URL || '').trim();
+const API_BASE_URL = (configuredApiBaseUrl || 'https://task-manager-laravel-api.vercel.app').replace(
+  /\/$/,
+  ''
+);
 const SESSION_KEY = 'taskManagerSession';
 
 const api = axios.create({

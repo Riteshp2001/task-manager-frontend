@@ -19,6 +19,9 @@ function CreateTask() {
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [error, setError] = useState('');
+  const selectedAssignee = assignableUsers.find(
+    (item) => String(item.id) === String(formData.assigned_to)
+  );
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -70,13 +73,25 @@ function CreateTask() {
 
   return (
     <div className="create-task-container">
-      <header className="header">
-        <div className="header-left">
+      <header className="task-page-hero">
+        <div className="task-page-copy">
           <Link to={`/projects/${projectId}`} className="back-link">
             ← Back
           </Link>
+          <p className="page-label">Task setup</p>
           <h1>Create Task</h1>
-          <p className="page-copy">Fill in the basic details and assign the task to a member.</p>
+          <p className="page-copy">
+            Keep it short, assign it clearly, and set a due date that the team can act on.
+          </p>
+        </div>
+        <div className="task-page-note">
+          <span>Summary</span>
+          <strong>{selectedAssignee ? selectedAssignee.name : 'Unassigned'}</strong>
+          <p>
+            {formData.due_date
+              ? `Due ${new Date(formData.due_date).toLocaleString()}`
+              : 'Pick a due date before saving the task.'}
+          </p>
         </div>
       </header>
 
@@ -130,7 +145,7 @@ function CreateTask() {
           </div>
 
           <div className="form-group">
-            <label>Assign To</label>
+            <label>{loadingUsers ? 'Assign To (loading...)' : 'Assign To'}</label>
             <select
               name="assigned_to"
               value={formData.assigned_to}

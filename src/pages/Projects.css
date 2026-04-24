@@ -3,28 +3,33 @@
   padding: 32px;
 }
 
-.projects-container .header {
+.projects-container .workspace-hero {
   max-width: 1160px;
   margin: 0 auto 28px;
-  padding: 28px 32px;
+  padding: 32px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
-  border-radius: 20px;
+  gap: 24px;
+  border-radius: 24px;
   background: var(--panel);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
 }
 
-.projects-container .header h1 {
-  margin: 4px 0 8px;
-  font-size: 34px;
+.projects-container .workspace-copy {
+  max-width: 640px;
+}
+
+.projects-container .workspace-copy h1 {
+  margin: 6px 0 10px;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.05;
 }
 
 .projects-container .section-label {
   margin: 0;
-  color: var(--accent);
+  color: var(--muted-strong);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -38,16 +43,17 @@
   line-height: 1.6;
 }
 
-.projects-container .header-right {
+.projects-container .workspace-actions {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
 .projects-container .user-chip {
-  padding: 12px 14px;
+  min-width: 180px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--panel-soft);
   text-align: left;
 }
@@ -70,7 +76,7 @@
 
 .projects-container .btn-logout {
   padding: 12px 18px;
-  background: var(--panel);
+  background: transparent;
   border: 1px solid var(--line);
   border-radius: 12px;
   font-size: 14px;
@@ -81,6 +87,45 @@
 
 .projects-container .btn-logout:hover {
   background: var(--panel-soft);
+}
+
+.projects-container .workspace-stats {
+  max-width: 1160px;
+  margin: 0 auto 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.projects-container .stat-card {
+  padding: 20px 22px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 14px 32px rgba(48, 38, 28, 0.04);
+}
+
+.projects-container .stat-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.projects-container .stat-card strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.projects-container .stat-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 14px;
 }
 
 .projects-container .projects-grid {
@@ -94,22 +139,32 @@
 .projects-container .project-card {
   background: var(--panel);
   padding: 24px;
-  border-radius: 18px;
+  border-radius: 20px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .projects-container .project-card:hover {
   transform: translateY(-2px);
+  border-color: rgba(31, 28, 23, 0.18);
+  box-shadow: 0 18px 36px rgba(48, 38, 28, 0.1);
 }
 
 .projects-container .project-card-top {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 18px;
+}
+
+.projects-container .project-index {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .projects-container .project-count {
@@ -117,8 +172,8 @@
   align-items: center;
   padding: 7px 10px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--panel-soft);
+  color: var(--text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -136,7 +191,7 @@
 }
 
 .projects-container .project-meta {
-  color: var(--text);
+  color: var(--muted-strong);
   font-size: 13px;
   font-weight: 700;
 }
@@ -205,13 +260,29 @@
     padding: 18px;
   }
 
-  .projects-container .header {
-    padding: 22px;
+  .projects-container .workspace-hero {
+    padding: 24px;
     flex-direction: column;
   }
 
-  .projects-container .header-right {
+  .projects-container .workspace-actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .projects-container .workspace-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .projects-container .workspace-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .projects-container .user-chip,
+  .projects-container .btn-logout {
+    width: 100%;
   }
 }

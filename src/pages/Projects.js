@@ -10,6 +10,12 @@ function Projects() {
   const [error, setError] = useState('');
   const session = getSession();
   const user = session?.user;
+  const isAdmin = user?.role === 'admin';
+  const totalTasks = projects.reduce((sum, project) => sum + (project.task_count || 0), 0);
+  const summaryTitle = isAdmin ? 'Team workspace' : 'Assigned work';
+  const summaryCopy = isAdmin
+    ? 'Track active projects, keep ownership clear, and step into any board that needs attention.'
+    : 'Review the projects that include your tasks and keep progress moving without extra noise.';
 
   useEffect(() => {
     loadProjects();
@@ -49,20 +55,16 @@ function Projects() {
 
   return (
     <div className="projects-container">
-      <header className="header">
-        <div className="header-left">
-          <p className="section-label">Dashboard</p>
-          <h1>Projects</h1>
-          <p className="section-copy">
-            {user?.role === 'admin'
-              ? 'Review every project, assign tasks, and monitor overdue work.'
-              : 'Open any project below to see the tasks assigned to you.'}
-          </p>
+      <header className="workspace-hero">
+        <div className="workspace-copy">
+          <p className="section-label">Internal workspace</p>
+          <h1>{summaryTitle}</h1>
+          <p className="section-copy">{summaryCopy}</p>
         </div>
-        <div className="header-right">
+        <div className="workspace-actions">
           <div className="user-chip">
             <strong>{user?.name}</strong>
-            <span>{user?.role === 'admin' ? 'Admin' : 'Member'}</span>
+            <span>{isAdmin ? 'Admin access' : 'Member access'}</span>
           </div>
           <button onClick={handleLogout} className="btn-logout">
             Logout
@@ -71,6 +73,24 @@ function Projects() {
       </header>
 
       {error && <div className="error-message">{error}</div>}
+
+      <section className="workspace-stats" aria-label="Workspace summary">
+        <article className="stat-card">
+          <span className="stat-label">Visible projects</span>
+          <strong>{projects.length}</strong>
+          <p>{isAdmin ? 'Everything currently in scope.' : 'Projects with tasks assigned to you.'}</p>
+        </article>
+        <article className="stat-card">
+          <span className="stat-label">Visible tasks</span>
+          <strong>{totalTasks}</strong>
+          <p>{isAdmin ? 'Across all active projects.' : 'Tasks surfaced through your assignments.'}</p>
+        </article>
+        <article className="stat-card">
+          <span className="stat-label">Working mode</span>
+          <strong>{isAdmin ? 'Manage' : 'Execute'}</strong>
+          <p>{isAdmin ? 'Create and close work as needed.' : 'Update status on the work you own.'}</p>
+        </article>
+      </section>
 
       <div className="projects-grid">
         {projects.length === 0 ? (
@@ -83,9 +103,10 @@ function Projects() {
             </p>
           </div>
         ) : (
-          projects.map((project) => (
+          projects.map((project, index) => (
             <Link to={`/projects/${project.id}`} key={project.id} className="project-card">
               <div className="project-card-top">
+                <span className="project-index">Project {index + 1}</span>
                 <span className="project-count">
                   {project.task_count || 0} task{project.task_count === 1 ? '' : 's'}
                 </span>
@@ -93,7 +114,7 @@ function Projects() {
               <h3>{project.name}</h3>
               <p>{project.description || 'No description added yet.'}</p>
               <div className="project-meta">
-                <span>Open project</span>
+                <span>{isAdmin ? 'Open board' : 'View tasks'}</span>
               </div>
             </Link>
           ))

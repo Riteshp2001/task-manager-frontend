@@ -11,6 +11,11 @@ function ProjectDetail() {
   const [error, setError] = useState('');
   const session = getSession();
   const user = session?.user;
+  const isAdmin = user?.role === 'admin';
+  const openTasks = tasks.filter((task) => task.status !== 'DONE').length;
+  const inProgressTasks = tasks.filter((task) => task.status === 'IN_PROGRESS').length;
+  const overdueTasks = tasks.filter((task) => task.status === 'OVERDUE').length;
+  const completedTasks = tasks.filter((task) => task.status === 'DONE').length;
 
   useEffect(() => {
     loadData();
@@ -18,12 +23,10 @@ function ProjectDetail() {
 
   const loadData = async () => {
     try {
-      const [projectData, tasksData] = await Promise.all([
-        projectService.getById(projectId),
-        taskService.getByProject(projectId),
-      ]);
-
+      const projectData = await projectService.getById(projectId);
       setProject(projectData);
+
+      const tasksData = await taskService.getByProject(projectId);
       setTasks(tasksData);
     } catch (err) {
       setError(err.message || 'Failed to load project data.');
@@ -36,8 +39,11 @@ function ProjectDetail() {
     setError('');
 
     try {
-      await taskService.updateStatus(taskId, newStatus);
-      await loadData();
+      const updatedTask = await taskService.updateStatus(taskId, newStatus);
+
+      setTasks((currentTasks) =>
+        currentTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+      );
     } catch (err) {
       setError(err.message || 'Failed to update status.');
     }
@@ -120,18 +126,19 @@ function ProjectDetail() {
 
   return (
     <div className="project-detail-container">
-      <header className="header">
-        <div className="header-left">
+      <header className="detail-hero">
+        <div className="detail-copy">
           <Link to="/projects" className="back-link">
             ← Back
           </Link>
+          <p className="detail-label">Project board</p>
           <h1>{project?.name || 'Project details'}</h1>
           <p className="project-summary">
             {project?.description || 'No description added for this project.'}
           </p>
         </div>
-        <div className="header-right">
-          {user?.role === 'admin' && (
+        <div className="detail-actions">
+          {isAdmin && (
             <Link to={`/create-task/${projectId}`} className="btn-new-task">
               Create task
             </Link>
@@ -141,16 +148,35 @@ function ProjectDetail() {
 
       {error && <div className="error-message">{error}</div>}
 
+      <section className="detail-stats" aria-label="Project summary">
+        <article className="detail-stat">
+          <span>Open</span>
+          <strong>{openTasks}</strong>
+        </article>
+        <article className="detail-stat">
+          <span>In progress</span>
+          <strong>{inProgressTasks}</strong>
+        </article>
+        <article className="detail-stat">
+          <span>Overdue</span>
+          <strong>{overdueTasks}</strong>
+        </article>
+        <article className="detail-stat">
+          <span>Completed</span>
+          <strong>{completedTasks}</strong>
+        </article>
+      </section>
+
       <div className="tasks-container">
         {tasks.length === 0 ? (
           <div className="empty-state">
             <h3>No tasks found</h3>
             <p>
-              {user?.role === 'admin'
+              {isAdmin
                 ? 'Create the first task for this project.'
                 : 'No tasks are currently assigned to you in this project.'}
             </p>
-            {user?.role === 'admin' && (
+            {isAdmin && (
               <Link to={`/create-task/${projectId}`} className="btn-create-task">
                 Create first task
               </Link>
@@ -172,7 +198,9 @@ function ProjectDetail() {
                 <tr key={task.id}>
                   <td>
                     <div className="task-title">{task.title}</div>
-                    <div className="task-description">{task.description}</div>
+                    <div className="task-description">
+                      {task.description || 'No description added for this task.'}
+                    </div>
                   </td>
                   <td>
                     <span className={`priority-badge ${getPriorityClass(task.priority)}`}>
@@ -191,7 +219,7 @@ function ProjectDetail() {
                   </td>
                   <td>
                     {task.status !== 'DONE' ? (
-                      task.status === 'OVERDUE' && user?.role !== 'admin' ? (
+                      task.status === 'OVERDUE' && !isAdmin ? (
                         <span className="locked-note">Admin only</span>
                       ) : (
                         <button
