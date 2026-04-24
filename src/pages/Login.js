@@ -33,7 +33,7 @@ function Login() {
           <p className="eyebrow">Task & Project Management System</p>
           <h1>Sign in</h1>
           <p className="subtitle">
-            Use the seeded admin or member account to review the assignment flow.
+            Use one of the test accounts below to explore the app.
           </p>
         </div>
 

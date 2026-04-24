@@ -1,6 +1,6 @@
 # Task Manager Frontend (React)
 
-This is the minimal frontend for the assignment. It covers the required screens and talks directly to the Laravel API.
+This is the minimal frontend for the task manager. It covers the required screens and talks directly to the Laravel API.
 
 ## Screens
 
@@ -21,7 +21,7 @@ This is the minimal frontend for the assignment. It covers the required screens 
 Create a `.env` file from `.env.example`:
 
 ```bash
-REACT_APP_API_URL=http://127.0.0.1:8000/api
+REACT_APP_API_URL=http://127.0.0.1:8000
 ```
 
 ## Local setup

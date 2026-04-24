@@ -5,7 +5,7 @@ const isLocalHost =
   ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
 const API_BASE_URL =
-  process.env.REACT_APP_API_URL || (isLocalHost ? 'http://127.0.0.1:8000/api' : '');
+  process.env.REACT_APP_API_URL || (isLocalHost ? 'http://127.0.0.1:8000' : '');
 const SESSION_KEY = 'taskManagerSession';
 
 const api = axios.create({
